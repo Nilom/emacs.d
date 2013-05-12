@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name : python header
+# key: h
+# --
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# 
+# Copyright (c) `(format-time-string "%Y")` NILOM(@molinlin).
+# Created at `(format-time-string "%Y-%m-%d")`.
+
+'''
+$1
+'''
+
+import sys, os
+
+$0
+
+if __name__ == '__main__':
+   ${2:pass}
