@@ -1,27 +1,14 @@
 ;; -*- coding: utf-8 -*-
 ;; -----------------------------------------------------------------------------
-;; ZHUO Qiang's Emacs Configuration 
+;; ZHUO Qiang's Emacs Configuration
+;; Extended by Nilom, 2014 
 ;; -----------------------------------------------------------------------------
 
 ;; (setq debug-on-error t)
 
 (when (not (equal window-system 'w32))
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-  (setq exec-path (append exec-path '("/usr/local/bin")))
-
-  ;; set up unicode
-  ;; By mlin.
-  ;; set coding as utf-8 for Chinese.
-  ;; Special for use in Terminal.
-  (prefer-coding-system       'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  ;; This from a japanese individual.  I hope it works.
-  (setq default-buffer-file-coding-system 'utf-8)
-  ;; From Emacs wiki
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-)
+  (setq exec-path (append exec-path '("/usr/local/bin"))))
 
 ;; add load path
 (unless (boundp 'user-emacs-directory)
@@ -39,7 +26,7 @@
 (load-library "qiang")
 
 (qiang-set-font
- '("Monaco" "Consolas" "DejaVu Sans Mono" "Monospace" "Courier New")
+ '("Consolas" "DejaVu Sans Mono" "Monospace" "Courier New")
  '("Microsoft Yahei" "STHeiti" "hei" "文泉驿等宽微米黑" "新宋体" "宋体"))
 
 (setq text-scale-mode-step 1.1)
@@ -71,7 +58,48 @@
 (setq frame-title-format "%f %4 %b %Z %* %10 %I")
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
+
 (column-number-mode t)
+;; 显示列号
+(setq column-number-mode t)
+(setq line-number-mode t)
+(global-linum-mode t)
+
+;;去掉工具栏
+(tool-bar-mode nil)
+;;去掉菜单栏，我将F10绑定为显示菜单栏，万一什么东西忘了，需要菜单栏了可以摁F10调出，再摁F10就去掉菜单
+(menu-bar-mode nil)
+;;不要滚动栏，现在都用滚轴鼠标了，可以不用滚动栏了
+(when (fboundp 'set-scroll-bar-mode)
+  (set-scroll-bar-mode nil))
+;;改变emacs标题栏的标题
+(setq frame-title-format "%b@Nilom-Emacs")
+;;允许emacs和外部其他程序的粘贴
+(setq x-select-enable-clipboard t)
+;;鼠标自动避开指针，如当你输入的时候，指针到了鼠标的位置，鼠标有点挡住视线了
+(mouse-avoidance-mode 'animate)
+
+;; For Org mode by Nilom.
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
+(setq org-agenda-files (list "~/Org/momento.org"))
+
+;设置Mobile-org目录
+(setq org-mobile-directory "~/MobileOrg")
+
+;; 将一个条目标记完成之后，添加时间戳和note
+(setq org-log-done 'time)
+(setq org-log-done 'note)
+
+;; 去除页脚信息
+(setq org-export-html-postamble nil)
+
+(defcustom org-export-html-style "<link rel=\"stylesheet\" type=\"text/css\"
+href=\"~/.emacs.d/org-mode-snapshot.css\">" "" :group 'org-export-html :type 'string)
+
 (setq display-time-day-and-date t)
 (display-time-mode t)
 (setq show-paren-style 'parentheses)
@@ -115,21 +143,7 @@
 (add-to-list 'ido-ignore-files "\\.DS_Store")
 
 (setq bookmark-save-flag 1)
-;; 使用C-k删除指针到行尾的所有内容。
 (setq kill-whole-line t)
-;; 设定删除保存记录为2000，对于无限恢复来说，基本够用了吧。
-(setq kill-ring-max 2000)
-
-
-;; Emacs Shell 设置
-;; Logout后自动关闭shell buffer
-(defun wcy-shell-mode-hook-func  ()
-   (set-process-sentinel (get-buffer-process (current-buffer))
-                            #'wcy-shell-mode-kill-buffer-on-exit)
-)
-(defun wcy-shell-mode-kill-buffer-on-exit (process state)
-  (kill-buffer (current-buffer)))
-(add-hook 'shell-mode-hook 'wcy-shell-mode-hook-func)
 
 (global-set-key [(meta g)] 'goto-line)
 (global-set-key [(f5)] 'compile)
@@ -209,7 +223,7 @@
  (lambda ()
    (c-set-style "qiang")
    (auto-fill-mode)
-   ;; (c-toggle-auto-neline)
+   ;; (c-toggle-auto-newline)
    (c-toggle-auto-hungry-state)))
 
 (setq
@@ -274,17 +288,8 @@
       (cons '("\\.md" . markdown-mode) auto-mode-alist))
 
 
-;; SCSS mode
-(autoload 'scss-mode "scss-mode")
-(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
-(setq scss-compile-at-save nil)
-
-(require 'sass-mode)
-
-
 ;; Org Mode
 (setq org-startup-truncated nil)
-(setq org-export-html-postamble nil)
 
 (require 'yasnippet) 
 (yas-global-mode 1)
@@ -292,31 +297,22 @@
   (setq-default yas-trigger-key "TAB"))
 (setq yas-also-auto-indent-first-line t)
 
-(require 'ahg)
+;; (require 'ahg)
 
-(if (and (boundp 'custom-theme-load-path) t)
-    (progn
-      (add-to-list 'custom-theme-load-path (qiang-in-emacs-directory "themes"))
-      ;; (add-to-list 'custom-theme-load-path (qiang-in-emacs-directory "lisp/emacs-color-theme-solarized"))
-      ;; (load-theme 'manoj-dark t)
-      ;; (load-theme 'manoj-dark t)
-      ;; (load-theme 'soothe t)
-      (load-theme 'monokai t)
-      ;; (load-file "~/.emacs.d/themes/color-theme-heroku.el")
-      ;; (color-theme-heroku)
-      ;; (load-theme 'zenburn t)
-      ;; (load-theme 'solarized-light t)
-      ;; (load-theme 'solarized-dark t)
-      )
-  (progn
-    (require 'color-theme)
-    (eval-after-load "color-theme"
-      (if window-system
-          '(progn
-             (color-theme-initialize)
-             ;; (load "color-theme-blackboard")
-             (load "color-theme-solarized-dark")
-             (color-theme-blackboard))))))
+;; (if (and (boundp 'custom-theme-load-path) t)
+;;     (progn
+;;       (add-to-list 'custom-theme-load-path (qiang-in-emacs-directory "themes"))
+;;       ;; (load-theme 'manoj-dark t)
+;;       (load-theme 'zenburn t)
+;;       )
+;;   (progn
+;;     (require 'color-theme)
+;;     (eval-after-load "color-theme"
+;;       (if window-system
+;;           '(progn
+;;              (color-theme-initialize)
+;;              (load "color-theme-blackboard")
+;;              (color-theme-blackboard))))))
 
 (require 'quick-jump)
 (quick-jump-default-keybinding)
@@ -344,28 +340,53 @@
 (qiang-define-auto-insert "\\.\\(py\\|pyw\\)$" "h")
 (setq auto-insert-query nil)
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector ["#000" "#cc9393" "#7f9f7f" "#f0dfaf" "#8cd0d3" "#dc8cc3" "#93e0e3" "#dcdccc"])
+ '(background-color "#002b36")
+ '(background-mode dark)
+ '(cursor-color "#839496")
+ '(custom-enabled-themes (quote (wombat)))
+ '(custom-safe-themes (quote ("d737a2131d5ac01c0b2b944e0d2cb0be1c76496bb4ed61be51ff0e5457468974" "bf3ec301ea82ab546efb39c2fdd4412d1188c7382ff3bbadd74a8ecae4121678" "16905cf6154d53610ac3525eb8eaa23186d03a00e3f1e965cb15bb075d5dc384" default)))
+ '(fci-rule-color "#383838")
+ '(foreground-color "#839496")
+ '(org-agenda-files (quote ("~/Org/momento.org"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(mode-line ((t (:foreground "white" :background "#0078ba" :box nil))))
+ '(mode-line-inactive ((t (:foreground "white" :background "#262626" :box nil)))))
+
+;; Disable scroll bar.
+;; by Nilom.
+(toggle-scroll-bar -1)
+
 ;; for powerline
-;; desc powerline
+;; desc: powerline
 ;; mode:  emacs-powerline
 ;; link: https://github.com/jonathanchu/emacs-powerline
 ;; -----------------------
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (require 'powerline)
-;;(powerline-default-theme)
 
-;; (defun graphic-powerline-config ()
-;;   "powerline setting for graphic"
-;;   (interactive)
-;;   (progn
-;;     (setq powerline-arrow-shape 'arrow)
-;;     (custom-set-faces
-;;      '(mode-line ((t (:foreground "white" :background "#0078ba" :box nil))))
-;;      '(mode-line-inactive ((t (:foreground "white" :background "#262626" :box nil))))
-;;      )
-;;     (setq powerline-color1 "#0088cc")
-;;     (setq powerline-color2 "white")
-;;     )
-;;   )
+(defun graphic-powerline-config ()
+  "powerline setting for graphic"
+  (interactive)
+  (progn
+    (setq powerline-arrow-shape 'arrow)
+    (custom-set-faces
+     '(mode-line ((t (:foreground "white" :background "#0078ba" :box nil))))
+     '(mode-line-inactive ((t (:foreground "white" :background "#262626" :box nil))))
+     )
+    (setq powerline-color1 "#0088cc")
+    (setq powerline-color2 "white")
+    )
+  )
 
 (defun terminal-powerline-config()
   " powerline setting for terminal"
@@ -377,19 +398,53 @@
    '(mode-line ((t (:foreground "grey44" :background "grey22" :box nil))))
    '(mode-line-inactive ((t (:foreground "grey22" :background "grey44" :box nil))))
    ))
-(terminal-powerline-config)
 
-;;   "根据是否图形界面加载配置"
-;; (if (display-graphic-p)
-;;     (graphic-powerline-config)
-;;   (terminal-powerline-config))
-;; ;; 在256色素模式下可以使用彩色模式。
-;; (graphic-powerline-config)
+  "根据是否图形界面加载配置"
+(if (display-graphic-p)
+    (graphic-powerline-config)
+  (terminal-powerline-config))
+(powerline-default)
 
-;; set htmlize 
+
+
+;; 使用%来匹配括号，和vi一样。
+(global-set-key "%" 'match-paren)
+
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+;; end [] match
+
+;; NILOM's Persional theme settings.
+;(load-file "~/.emacs.d/vendor/color-theme-heroku/color-theme-heroku.el")
+;(color-theme-heroku)
+(load-file "~/.emacs.d/vendor/color-theme-molokai/color-theme-molokai.el")
+(color-theme-molokai)
+;(add-to-list 'custom-theme-load-path "~/.emacs.d/vendor")
+;(molokai)
+
+
+;; DIR Tree view
+;; By NILOM
+;; From stackoverflow
+;; (add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'dirtree)
+(require 'tree-mode)
+(require 'windata)
+(autoload 'dirtree "dirtree" "Add directory to tree view" t)
+(global-set-key "\C-o" 'dirtree-show)
+
+;; Speedbar Setting
+;; By NILOM
+(require 'sr-speedbar)
+
+;; set htmlize
 (require 'htmlize)
 ;; Org-mode 生成HTML保持代码高亮。
-(setq org-src-fontify-natively t) 
+(setq org-src-fontify-natively t)
 ;; active Babel languages
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -398,4 +453,15 @@
    (sh . t)
    (perl . t)
    (python .t)
+   (ditaa . t)
    ))
+;; set ditta path
+(setq org-ditaa-jar-path "c:/ditaa.jar")
+
+; For PHP Mode.
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'php-mode)
+(add-to-list 'auto-mode-alist '("\\.module$" . php-mode))
+(add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+(add-to-list 'auto-mode-alist '("\\.install$" . php-mode))
+(add-to-list 'auto-mode-alist '("\\.engine$" . php-mode))
