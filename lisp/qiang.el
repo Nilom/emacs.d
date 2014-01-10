@@ -1,6 +1,6 @@
 (defun qiang-best-font-size ()
   (if window-system
-      (/ (x-display-pixel-height) 47)
+      (/ (x-display-pixel-height) 66)
     0))
 
 (defun qiang-font-existsp (font)
