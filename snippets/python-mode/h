@@ -2,19 +2,19 @@
 # name : python header
 # key: h
 # --
-#! /usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-# Copyright (c) `(format-time-string "%Y")` NILOM(@molinlin).
+# Copyright (c) `(format-time-string "%Y")` NILOM <molinlin@baidu.com>
 # Created at `(format-time-string "%Y-%m-%d")`.
 
 '''
-$1
 '''
 
-import sys, os
+import sys
+import os
 
 $0
 
 if __name__ == '__main__':
-   ${2:pass}
+   ${1:pass}
